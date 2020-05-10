@@ -98,7 +98,7 @@ NIO方式使用于链接数目多且链接比较短(轻操作)的架构,比如�
 
 
 
-![image-20200510161457179](/Users/sjy/Library/Application Support/typora-user-images/image-20200510161457179.png)
+![image-20200510161457179](https://github.com/ohyemybaby/blog/blob/master/netty/screenshorts/image-20200510160909958.png)
 
 
 
