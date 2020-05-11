@@ -69,7 +69,9 @@ select * frm dwd_start_log where dt='2020-03-11' limit 2;
 select * from ods_event_log where dt='2020-03-11' limit 2;
 ```
 
-![image-20200511115454971](/Users/sjy/Library/Application Support/typora-user-images/image-20200511115454971.png)
+
+
+![手绘图.png](https://github.com/ohyemybaby/blog/blob/master/数据仓库/screenshorts/image-20200511115454971.png)
 
 
 
