@@ -232,6 +232,78 @@ jar包更新,替换jar包,重启hive客户端
 
 
 
+```shell
+#!/bin/shell
+hive=/opt/module/hive/bin/hive
+APP=gmall
+
+if[-n "$1"]; then
+  do_date=`date -d '-1 day' +%F`
+else
+  do_date=$1
+fi
+
+
+sql="
+use ${APP};
+insert overwrite table ${APP}.dwd_base_event_log
+partition(dt='$do_date')
+select 
+	base_analizer(line,"mid") mid_id,
+	event_name,
+	event_json,
+	base_analizer(line,'st') as server_time
+from ${APP}.ods_event_log lateral viewe flat_analizer(base_analizer(line,'et')) tmp_flat as event_name,event_json
+where dt='$do_date' and base_analizer(line, "et")<>'';"
+
+hive -e "$sql"
+```
+
+
+
+```sql
+set hive.exec.dynamic.partition.mode=nonstrict; -- 动态分区,非严格模式
+
+insert overwrite table dwd_fact_coupon_use
+partition(dt)
+select
+	if(new.id is null,old.id,new.id),
+	if(new.coupon_id is null, old.coupon_id,new.coupon_id),
+	if(new.user_id is null,old.user_id,new.user_id),
+	if(new.order_id is null,old.order_id,new.order_id),
+	if(new.coupon_status is null,old.coupon_status,new.coupon_status),
+	if(new.get_time is null,old.get_time,new.get_time),
+	if(new.using_time is null,old.using_time,new.using_time),
+	if(new.used_time is null,old.used_time,new.used_time),
+	date_format(	if(new.get_time is null,old.get_time,new.get_time),'yyyy-MM-dd')
+from
+(
+  select 
+  id,
+  coupon_id,
+  user_id,
+  coupon_status,
+  get_time,
+  using_time,
+  used_time
+  from dwd_fact_coupon_use   -- 老数据
+  where dt in
+  (
+  	select date_format(get_time,'yyyy-MM-dd')
+    from ods_coupon_use
+    where dt='2020-03-10' -- 3月10号新增和修改的数据
+  )
+)old
+full outer join -- 全表链接
+(
+	select
+  id,coupon_id,user_id,order_id,coupon_status,get_time,using_time,used_time
+  from ods_coupon_use
+  where dt='2020-03-10' -- 这个时间可能是领取时间、使用时间和支付时间
+)new 
+on old.id = new.id
+```
+
 
 
 
